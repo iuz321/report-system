@@ -7,7 +7,6 @@ using System.Text;
 public class GoogleSheetService
 {
     private readonly SheetsService _service;
-
     private readonly string _spreadsheetId = "1akc8lPUQ9_6BB1sxOpQbuzqKSDGWNSZJL-m5pnBvdeM";
 
     public GoogleSheetService()
@@ -40,7 +39,7 @@ public class GoogleSheetService
         return response.Values ?? new List<IList<object>>();
     }
 
-    // ✅ 新增（含設備種類）
+    // ✅ 新增
     public void AddRow(List<object> row)
     {
         var body = new ValueRange
@@ -55,7 +54,7 @@ public class GoogleSheetService
         request.Execute();
     }
 
-    // ✅ 更新（A~E）
+    // ✅ 更新
     public void UpdateRow(int rowIndex, List<object> row)
     {
         var range = $"work!A{rowIndex}:E{rowIndex}";

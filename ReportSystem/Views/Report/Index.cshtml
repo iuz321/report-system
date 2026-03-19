@@ -2,30 +2,31 @@
 
 <h2>工作報告系統</h2>
 
-<!-- 🔹 新增表單 -->
 <form method="post" action="/Report/Add">
 
+    <input type="hidden" name="rowIndex" id="rowIndex" />
+
     客戶：
-    <input type="text" name="Customer" />
+    <input type="text" name="Customer" id="Customer" />
     <br /><br />
 
     類型：
-    <select name="Type">
+    <select name="Type" id="Type">
         <option>打樣</option>
         <option>DEMO</option>
     </select>
     <br /><br />
 
     設備種類：
-    <input type="text" name="Equipment" />
+    <input type="text" name="Equipment" id="Equipment" />
     <br /><br />
 
     內容：
-    <textarea name="Content" style="width:300px;height:100px;"></textarea>
+    <textarea name="Content" id="Content" style="width:300px;height:100px;"></textarea>
     <br /><br />
 
     負責人：
-    <input type="text" name="Owner" />
+    <input type="text" name="Owner" id="Owner" />
     <br /><br />
 
     <button type="submit">送出</button>
@@ -49,21 +50,26 @@
 {
     var row = Model[i];
 
-    <tr>
-        <form method="post" action="/Report/Update">
+    <tr onclick="fillForm(@(i+2), '@(row.Count>0?row[0]:"")', '@(row.Count>1?row[1]:"")', '@(row.Count>2?row[2]:"")', '@(row.Count>3?row[3]:"")', '@(row.Count>4?row[4]:"")')">
 
-            <input type="hidden" name="rowIndex" value="@(i + 2)" />
+        <td>@(row.Count>0?row[0]:"")</td>
+        <td>@(row.Count>1?row[1]:"")</td>
+        <td>@(row.Count>2?row[2]:"")</td>
+        <td>@(row.Count>3?row[3]:"")</td>
+        <td>@(row.Count>4?row[4]:"")</td>
 
-            <td><input name="Customer" value="@(row.Count>0?row[0]:"")" /></td>
-            <td><input name="Type" value="@(row.Count>1?row[1]:"")" /></td>
-            <td><input name="Equipment" value="@(row.Count>2?row[2]:"")" /></td>
-            <td><input name="Content" value="@(row.Count>3?row[3]:"")" /></td>
-            <td><input name="Owner" value="@(row.Count>4?row[4]:"")" /></td>
-
-            <td><button type="submit">更新</button></td>
-
-        </form>
     </tr>
 }
 
 </table>
+
+<script>
+function fillForm(index, customer, type, equipment, content, owner) {
+    document.getElementById("rowIndex").value = index;
+    document.getElementById("Customer").value = customer;
+    document.getElementById("Type").value = type;
+    document.getElementById("Equipment").value = equipment;
+    document.getElementById("Content").value = content;
+    document.getElementById("Owner").value = owner;
+}
+</script>
