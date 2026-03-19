@@ -1,85 +1,28 @@
-﻿@model List<Report>
-<meta charset="utf-8" />
+﻿@model IList<IList<object>>
 
-<style>
-    body {
-        font-family: Arial;
-    }
+<h2>報告清單（點擊可編輯）</h2>
 
-    textarea {
-        width: 400px;
-        height: 80px;
-    }
-
-    td {
-        white-space: pre-wrap; /* 保留換行 */
-        word-break: break-all; /* 避免爆版 */
-        max-width: 300px;
-    }
-
-    table {
-        border-collapse: collapse;
-    }
-
-    th, td {
-        padding: 8px;
-        border: 1px solid #ccc;
-    }
-
-    tr:hover {
-        background-color: #f5f5f5;
-    }
-</style>
-
-<h2>工作報告系統</h2>
-
-<form method="post" action="/Report/Save">
-    客戶：<input name="Customer" /><br /><br />
-
-    類型：
-    <select name="Type">
-        <option value="打樣">打樣</option>
-        <option value="DEMO">DEMO</option>
-    </select>
-    <br /><br />
-
-    內容：<br />
-    <textarea name="Content"></textarea>
-    <br /><br />
-
-    負責人：<input name="Owner" /><br /><br />
-
-    <button type="submit">送出</button>
-</form>
-
-<hr />
-
-<h3>報告清單（點擊可編輯）</h3>
-
-<table>
+<table border="1" cellpadding="5">
     <tr>
         <th>客戶</th>
         <th>類型</th>
+        <th>設備種類</th> <!-- ⭐ 新增 -->
         <th>內容</th>
         <th>負責人</th>
     </tr>
 
-    @foreach (var item in Model)
-    {
-        <tr onclick="editRow('@item.Customer','@item.Type','@item.Content','@item.Owner')" style="cursor:pointer;">
-            <td>@item.Customer</td>
-            <td>@item.Type</td>
-            <td>@item.Content</td>
-            <td>@item.Owner</td>
-        </tr>
-    }
+@foreach (var row in Model)
+{
+    <tr>
+        <td>@(row.Count > 0 ? row[0] : "")</td>
+        <td>@(row.Count > 1 ? row[1] : "")</td>
+        <td>@(row.Count > 2 ? row[2] : "")</td> <!-- ⭐ -->
+        <td>@(row.Count > 3 ? row[3] : "")</td>
+        <td>@(row.Count > 4 ? row[4] : "")</td>
+    </tr>
+}
+
 </table>
 
-<script>
-    function editRow(c,t,con,o){
-        document.querySelector('[name=Customer]').value = c;
-        document.querySelector('[name=Type]').value = t;
-        document.querySelector('[name=Content]').value = con;
-        document.querySelector('[name=Owner]').value = o;
-    }
-</script>
+<br />
+<a href="/Report/Create">新增報告</a>

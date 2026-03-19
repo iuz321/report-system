@@ -2,64 +2,38 @@
 
 public class ReportController : Controller
 {
-    private readonly GoogleSheetService _sheetService;
+    private readonly GoogleSheetService _sheet;
 
-    public ReportController(GoogleSheetService sheetService)
+    public ReportController()
     {
-        _sheetService = sheetService;
+        _sheet = new GoogleSheetService();
     }
 
-    // 顯示清單
+    // 📄 顯示資料
     public IActionResult Index()
     {
-        var data = _sheetService.GetAll();
-
-        var list = data.Select(r => new Report
-        {
-            Customer = r.ElementAtOrDefault(0)?.ToString(),
-            Type = r.ElementAtOrDefault(1)?.ToString(),
-            Content = r.ElementAtOrDefault(2)?.ToString(),
-            Owner = r.ElementAtOrDefault(3)?.ToString()
-        }).ToList();
-
-        return View(list);
+        var data = _sheet.GetAll();
+        return View(data);
     }
 
-    // 新增或更新
-    [HttpPost]
-    public IActionResult Save(Report report)
+    // ➕ 顯示新增頁
+    public IActionResult Create()
     {
-        var data = _sheetService.GetAll();
+        return View();
+    }
 
-        int rowIndex = 2;
-        bool found = false;
-
-        foreach (var row in data)
+    // ➕ 新增資料
+    [HttpPost]
+    public IActionResult Create(string Customer, string Type, string Equipment, string Content, string Owner)
+    {
+        _sheet.AddRow(new List<object>
         {
-            if (row.Count > 0 && row[0]?.ToString() == report.Customer)
-            {
-                found = true;
-                break;
-            }
-            rowIndex++;
-        }
-
-        var newRow = new List<object>
-        {
-            report.Customer,
-            report.Type,
-            report.Content,
-            report.Owner
-        };
-
-        if (found)
-        {
-            _sheetService.UpdateRow(rowIndex, newRow);
-        }
-        else
-        {
-            _sheetService.AddRow(newRow);
-        }
+            Customer,
+            Type,
+            Equipment, // ⭐ 新增欄位
+            Content,
+            Owner
+        });
 
         return RedirectToAction("Index");
     }

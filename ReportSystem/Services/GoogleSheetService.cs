@@ -2,10 +2,12 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using System.Text;
 
 public class GoogleSheetService
 {
     private readonly SheetsService _service;
+
     private readonly string _spreadsheetId = "1akc8lPUQ9_6BB1sxOpQbuzqKSDGWNSZJL-m5pnBvdeM";
 
     public GoogleSheetService()
@@ -13,13 +15,15 @@ public class GoogleSheetService
         var json = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIAL_JSON");
 
         if (string.IsNullOrEmpty(json))
-        {
-            throw new Exception("找不到 GOOGLE_CREDENTIAL_JSON 環境變數");
-        }
+            throw new Exception("找不到 GOOGLE_CREDENTIAL_JSON");
 
-        GoogleCredential credential = GoogleCredential
-            .FromJson(json)
-            .CreateScoped(SheetsService.Scope.Spreadsheets);
+        GoogleCredential credential;
+
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+        {
+            credential = GoogleCredential.FromStream(stream)
+                .CreateScoped(SheetsService.Scope.Spreadsheets);
+        }
 
         _service = new SheetsService(new BaseClientService.Initializer()
         {
@@ -28,13 +32,15 @@ public class GoogleSheetService
         });
     }
 
+    // ✅ 讀取 A~E
     public IList<IList<object>> GetAll()
     {
-        var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:D");
+        var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:E");
         var response = request.Execute();
         return response.Values ?? new List<IList<object>>();
     }
 
+    // ✅ 新增（含設備種類）
     public void AddRow(List<object> row)
     {
         var body = new ValueRange
@@ -42,16 +48,17 @@ public class GoogleSheetService
             Values = new List<IList<object>> { row }
         };
 
-        var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:D");
+        var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:E");
         request.ValueInputOption =
             SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
 
         request.Execute();
     }
 
+    // ✅ 更新（A~E）
     public void UpdateRow(int rowIndex, List<object> row)
     {
-        var range = $"work!A{rowIndex}:D{rowIndex}";
+        var range = $"work!A{rowIndex}:E{rowIndex}";
 
         var body = new ValueRange
         {
