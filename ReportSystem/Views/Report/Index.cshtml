@@ -1,72 +1,171 @@
 ﻿@model IList<IList<object>>
 
-<h2>工作報告系統</h2>
+<style>
+    body {
+        font-family: "Segoe UI", Arial;
+        background: #f5f6fa;
+    }
 
-<form method="post" action="/Report/Add">
+    /* 卡片 */
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
 
-    <input type="hidden" name="rowIndex" id="rowIndex" />
+    /* 標題 */
+    h2 {
+        margin-bottom: 15px;
+    }
 
-    客戶：
-    <input type="text" name="Customer" id="Customer" /><br /><br />
+    /* 表單 */
+    .form-group {
+        margin-bottom: 10px;
+    }
 
-    類型：
-    <select name="Type" id="Type">
-        <option>打樣</option>
-        <option>DEMO</option>
-    </select><br /><br />
+    input, select, textarea {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 250px;
+    }
 
-    設備種類：
-    <input type="text" name="Equipment" id="Equipment" /><br /><br />
+    textarea {
+        width: 400px;
+    }
 
-    內容：<br />
-    <textarea name="Content" id="Content" style="width:400px;height:100px;"></textarea><br /><br />
+    /* 按鈕 */
+    button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
 
-    負責人：
-    <input type="text" name="Owner" id="Owner" /><br /><br />
+        button:hover {
+            background: #0056b3;
+        }
 
-    <button type="submit">送出</button>
+    /* 表格 */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-</form>
+    th {
+        background: #007bff;
+        color: white;
+    }
 
-<hr />
+    th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
 
-<h2>報告清單（點擊可編輯）</h2>
+    /* 滑過效果 */
+    tr:hover {
+        background: #f1f1f1;
+    }
 
-<table style="border-collapse: collapse; width:100%;">
-    <tr style="background:#eee;">
-        <th style="border:1px solid #ccc;">客戶</th>
-        <th style="border:1px solid #ccc;">類型</th>
-        <th style="border:1px solid #ccc;">設備種類</th>
-        <th style="border:1px solid #ccc;">內容</th>
-        <th style="border:1px solid #ccc;">負責人</th>
-        <th style="border:1px solid #ccc;">日期</th>
-    </tr>
+    /* 選中 */
+    .selected {
+        background: #cce5ff !important;
+    }
+</style>
 
-@for (int i = 0; i < Model.Count; i++)
-{
-    var row = Model[i];
+<div class="card">
+    <h2>工作報告系統</h2>
 
-    <tr style="cursor:pointer;"
-        onclick="fillForm(@(i+2), '@(row.Count>0?row[0]:"")', '@(row.Count>1?row[1]:"")', '@(row.Count>2?row[2]:"")', '@(row.Count>3?row[3]:"")', '@(row.Count>4?row[4]:"")')">
+    <form method="post" action="/Report/Add">
 
-        <td style="border:1px solid #ccc;">@(row.Count>0?row[0]:"")</td>
-        <td style="border:1px solid #ccc;">@(row.Count>1?row[1]:"")</td>
-        <td style="border:1px solid #ccc;">@(row.Count>2?row[2]:"")</td>
-        <td style="border:1px solid #ccc;">@(row.Count>3?row[3]:"")</td>
-        <td style="border:1px solid #ccc;">@(row.Count>4?row[4]:"")</td>
-        <td style="border:1px solid #ccc;">@(row.Count>5?row[5]:"")</td>
-    </tr>
-}
+        <input type="hidden" name="rowIndex" id="rowIndex" />
 
-</table>
+        <div class="form-group">
+            客戶：
+            <input type="text" name="Customer" id="Customer" />
+        </div>
+
+        <div class="form-group">
+            類型：
+            <select name="Type" id="Type">
+                <option>打樣</option>
+                <option>DEMO</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            設備種類：
+            <input type="text" name="Equipment" id="Equipment" />
+        </div>
+
+        <div class="form-group">
+            內容：<br />
+            <textarea name="Content" id="Content"></textarea>
+        </div>
+
+        <div class="form-group">
+            負責人：
+            <input type="text" name="Owner" id="Owner" />
+        </div>
+
+        <button type="submit">送出</button>
+
+    </form>
+</div>
+
+<div class="card">
+    <h2>報告清單（點擊可編輯）</h2>
+
+    <table id="reportTable">
+        <tr>
+            <th>客戶</th>
+            <th>類型</th>
+            <th>設備種類</th>
+            <th>內容</th>
+            <th>負責人</th>
+            <th>日期</th>
+        </tr>
+
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var row = Model[i];
+
+            <tr onclick="fillForm(this, @(i + 2), '@(row.Count > 0 ? row[0] : "")', '@(row.Count > 1 ? row[1] : "")', '@(row.Count > 2 ? row[2] : "")', '@(row.Count > 3 ? row[3] : "")', '@(row.Count > 4 ? row[4] : "")')">
+
+                <td>@(row.Count > 0 ? row[0] : "")</td>
+                <td>@(row.Count > 1 ? row[1] : "")</td>
+                <td>@(row.Count > 2 ? row[2] : "")</td>
+                <td>@(row.Count > 3 ? row[3] : "")</td>
+                <td>@(row.Count > 4 ? row[4] : "")</td>
+                <td>@(row.Count > 5 ? row[5] : "")</td>
+
+            </tr>
+        }
+
+    </table>
+</div>
 
 <script>
-function fillForm(index, customer, type, equipment, content, owner) {
-    document.getElementById("rowIndex").value = index;
-    document.getElementById("Customer").value = customer;
-    document.getElementById("Type").value = type;
-    document.getElementById("Equipment").value = equipment;
-    document.getElementById("Content").value = content;
-    document.getElementById("Owner").value = owner;
-}
+    function fillForm(rowElement, index, customer, type, equipment, content, owner) {
+
+        // 清除選取
+        let rows = document.querySelectorAll("#reportTable tr");
+        rows.forEach(r => r.classList.remove("selected"));
+
+        // 高亮
+        rowElement.classList.add("selected");
+
+        // 填資料
+        document.getElementById("rowIndex").value = index;
+        document.getElementById("Customer").value = customer;
+        document.getElementById("Type").value = type;
+        document.getElementById("Equipment").value = equipment;
+        document.getElementById("Content").value = content;
+        document.getElementById("Owner").value = owner;
+    }
 </script>
