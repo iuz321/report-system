@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "建立報告";
+}
+
+<h2>建立報告</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div>
+        客戶名稱：<input type="text" name="customer" />
+    </div>
+
+    <div>
+        類型：
+        <select name="type">
+            <option>打樣</option>
+            <option>量產</option>
+        </select>
+    </div>
+
+    <div>
+        工作報告：<input type="text" name="content" />
+    </div>
+
+    <div>
+        負責人：<input type="text" name="owner" />
+    </div>
+
+    <div>
+        附件：<input type="file" name="file" />
+    </div>
+
+    <button type="submit">送出</button>
+</form>

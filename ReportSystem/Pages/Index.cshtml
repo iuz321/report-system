@@ -1,0 +1,27 @@
+﻿@page
+
+<h2>工作報告系統</h2>
+
+<form method="post" enctype="multipart/form-data">
+
+    <label>客戶名稱：</label><br />
+    <input type="text" name="CustomerName" required /><br /><br />
+
+    <label>類型：</label><br />
+    <label><input type="radio" name="ReportType" value="打樣" required> 打樣</label>
+    <label><input type="radio" name="ReportType" value="DEMO"> DEMO</label>
+    <br /><br />
+
+    <label>工作報告：</label><br />
+<textarea name="ReportContent" rows="5" required></textarea><br /><br />
+
+    <label>負責人：</label><br />
+    <input type="text" name="Owner" required /><br /><br />
+
+    <label>附件：</label><br />
+    <input type="file" name="UploadFile" /><br /><br />
+
+    <button type="submit">送出</button>
+    
+
+</form>
