@@ -15,32 +15,33 @@ public class ReportController : Controller
         return View(data);
     }
 
-    // ⭐ 單一入口（新增 + 更新）
     [HttpPost]
     public IActionResult Add(string Customer, string Type, string Equipment, string Content, string Owner, int? rowIndex)
     {
+        var today = DateTime.Now.ToString("yyyy-MM-dd"); // ⭐ 只日期
+
         if (rowIndex.HasValue)
         {
-            // 更新
             _sheet.UpdateRow(rowIndex.Value, new List<object>
             {
                 Customer,
                 Type,
                 Equipment,
                 Content,
-                Owner
+                Owner,
+                today
             });
         }
         else
         {
-            // 新增
             _sheet.AddRow(new List<object>
             {
                 Customer,
                 Type,
                 Equipment,
                 Content,
-                Owner
+                Owner,
+                today
             });
         }
 

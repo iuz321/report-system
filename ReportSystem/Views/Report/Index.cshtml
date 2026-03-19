@@ -7,27 +7,22 @@
     <input type="hidden" name="rowIndex" id="rowIndex" />
 
     客戶：
-    <input type="text" name="Customer" id="Customer" />
-    <br /><br />
+    <input type="text" name="Customer" id="Customer" /><br /><br />
 
     類型：
     <select name="Type" id="Type">
         <option>打樣</option>
         <option>DEMO</option>
-    </select>
-    <br /><br />
+    </select><br /><br />
 
     設備種類：
-    <input type="text" name="Equipment" id="Equipment" />
-    <br /><br />
+    <input type="text" name="Equipment" id="Equipment" /><br /><br />
 
-    內容：
-    <textarea name="Content" id="Content" style="width:300px;height:100px;"></textarea>
-    <br /><br />
+    內容：<br />
+    <textarea name="Content" id="Content" style="width:400px;height:100px;"></textarea><br /><br />
 
     負責人：
-    <input type="text" name="Owner" id="Owner" />
-    <br /><br />
+    <input type="text" name="Owner" id="Owner" /><br /><br />
 
     <button type="submit">送出</button>
 
@@ -37,27 +32,29 @@
 
 <h2>報告清單（點擊可編輯）</h2>
 
-<table border="1" cellpadding="5">
-    <tr>
-        <th>客戶</th>
-        <th>類型</th>
-        <th>設備種類</th>
-        <th>內容</th>
-        <th>負責人</th>
+<table style="border-collapse: collapse; width:100%;">
+    <tr style="background:#eee;">
+        <th style="border:1px solid #ccc;">客戶</th>
+        <th style="border:1px solid #ccc;">類型</th>
+        <th style="border:1px solid #ccc;">設備種類</th>
+        <th style="border:1px solid #ccc;">內容</th>
+        <th style="border:1px solid #ccc;">負責人</th>
+        <th style="border:1px solid #ccc;">日期</th>
     </tr>
 
 @for (int i = 0; i < Model.Count; i++)
 {
     var row = Model[i];
 
-    <tr onclick="fillForm(@(i+2), '@(row.Count>0?row[0]:"")', '@(row.Count>1?row[1]:"")', '@(row.Count>2?row[2]:"")', '@(row.Count>3?row[3]:"")', '@(row.Count>4?row[4]:"")')">
+    <tr style="cursor:pointer;"
+        onclick="fillForm(@(i+2), '@(row.Count>0?row[0]:"")', '@(row.Count>1?row[1]:"")', '@(row.Count>2?row[2]:"")', '@(row.Count>3?row[3]:"")', '@(row.Count>4?row[4]:"")')">
 
-        <td>@(row.Count>0?row[0]:"")</td>
-        <td>@(row.Count>1?row[1]:"")</td>
-        <td>@(row.Count>2?row[2]:"")</td>
-        <td>@(row.Count>3?row[3]:"")</td>
-        <td>@(row.Count>4?row[4]:"")</td>
-
+        <td style="border:1px solid #ccc;">@(row.Count>0?row[0]:"")</td>
+        <td style="border:1px solid #ccc;">@(row.Count>1?row[1]:"")</td>
+        <td style="border:1px solid #ccc;">@(row.Count>2?row[2]:"")</td>
+        <td style="border:1px solid #ccc;">@(row.Count>3?row[3]:"")</td>
+        <td style="border:1px solid #ccc;">@(row.Count>4?row[4]:"")</td>
+        <td style="border:1px solid #ccc;">@(row.Count>5?row[5]:"")</td>
     </tr>
 }
 

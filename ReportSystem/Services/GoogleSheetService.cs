@@ -13,9 +13,6 @@ public class GoogleSheetService
     {
         var json = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIAL_JSON");
 
-        if (string.IsNullOrEmpty(json))
-            throw new Exception("找不到 GOOGLE_CREDENTIAL_JSON");
-
         GoogleCredential credential;
 
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
@@ -31,38 +28,29 @@ public class GoogleSheetService
         });
     }
 
-    // ✅ 讀取 A~E
     public IList<IList<object>> GetAll()
     {
-        var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:E");
+        var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:F");
         var response = request.Execute();
         return response.Values ?? new List<IList<object>>();
     }
 
-    // ✅ 新增
     public void AddRow(List<object> row)
     {
-        var body = new ValueRange
-        {
-            Values = new List<IList<object>> { row }
-        };
+        var body = new ValueRange { Values = new List<IList<object>> { row } };
 
-        var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:E");
+        var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:F");
         request.ValueInputOption =
             SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
 
         request.Execute();
     }
 
-    // ✅ 更新
     public void UpdateRow(int rowIndex, List<object> row)
     {
-        var range = $"work!A{rowIndex}:E{rowIndex}";
+        var range = $"work!A{rowIndex}:F{rowIndex}";
 
-        var body = new ValueRange
-        {
-            Values = new List<IList<object>> { row }
-        };
+        var body = new ValueRange { Values = new List<IList<object>> { row } };
 
         var request = _service.Spreadsheets.Values.Update(body, _spreadsheetId, range);
         request.ValueInputOption =
