@@ -3,40 +3,50 @@
 <style>
     body {
         font-family: "Segoe UI", Arial;
-        background: #f5f6fa;
+        background: #f4f6f9;
+        margin: 0;
     }
 
-    /* 卡片 */
+    /* Header */
+    .header {
+        background: #1f2d3d;
+        color: white;
+        padding: 15px 20px;
+        font-size: 20px;
+    }
+
+    /* Container */
+    .container {
+        padding: 20px;
+    }
+
+    /* Card */
     .card {
         background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         margin-bottom: 20px;
     }
 
-    /* 標題 */
-    h2 {
-        margin-bottom: 15px;
-    }
-
-    /* 表單 */
-    .form-group {
+    /* Form */
+    .form-row {
         margin-bottom: 10px;
     }
 
     input, select, textarea {
+        width: 100%;
+        max-width: 400px;
         padding: 6px;
         border: 1px solid #ccc;
         border-radius: 5px;
-        width: 250px;
     }
 
     textarea {
-        width: 400px;
+        height: 80px;
     }
 
-    /* 按鈕 */
+    /* Button */
     button {
         background: #007bff;
         color: white;
@@ -50,115 +60,171 @@
             background: #0056b3;
         }
 
-    /* 表格 */
+    /* Table */
     table {
         width: 100%;
         border-collapse: collapse;
     }
 
     th {
-        background: #007bff;
+        background: #343a40;
         color: white;
     }
 
     th, td {
         padding: 8px;
         border: 1px solid #ddd;
-        text-align: left;
     }
 
-    /* 滑過效果 */
+    /* Hover */
     tr:hover {
         background: #f1f1f1;
     }
 
-    /* 選中 */
+    /* Selected row */
     .selected {
         background: #cce5ff !important;
     }
+
+    /* 📱 手機版 */
+    @@media (max-width: 768px) {
+
+        table {
+            display: none;
+        }
+
+        .mobile-card {
+            display: block;
+        }
+
+        .mobile-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+            .mobile-item div {
+                margin-bottom: 3px;
+            }
+    }
+
+    /* 🖥️ 電腦版 */
+    @@media (min-width: 769px) {
+        .mobile-card {
+            display: none;
+        }
+    }
 </style>
 
-<div class="card">
-    <h2>工作報告系統</h2>
+<div class="header">📊 工作報告系統</div>
 
-    <form method="post" action="/Report/Add">
+<div class="container">
 
-        <input type="hidden" name="rowIndex" id="rowIndex" />
+    <!-- 表單 -->
+    <div class="card">
+        <form method="post" action="/Report/Add">
 
-        <div class="form-group">
-            客戶：
-            <input type="text" name="Customer" id="Customer" />
-        </div>
+            <input type="hidden" name="rowIndex" id="rowIndex" />
 
-        <div class="form-group">
-            類型：
-            <select name="Type" id="Type">
-                <option>打樣</option>
-                <option>DEMO</option>
-            </select>
-        </div>
+            <div class="form-row">
+                客戶：
+                <input type="text" name="Customer" id="Customer" />
+            </div>
 
-        <div class="form-group">
-            設備種類：
-            <input type="text" name="Equipment" id="Equipment" />
-        </div>
+            <div class="form-row">
+                類型：
+                <select name="Type" id="Type">
+                    <option>打樣</option>
+                    <option>DEMO</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            內容：<br />
-            <textarea name="Content" id="Content"></textarea>
-        </div>
+            <div class="form-row">
+                設備種類：
+                <input type="text" name="Equipment" id="Equipment" />
+            </div>
 
-        <div class="form-group">
-            負責人：
-            <input type="text" name="Owner" id="Owner" />
-        </div>
+            <div class="form-row">
+                內容：
+                <textarea name="Content" id="Content"></textarea>
+            </div>
 
-        <button type="submit">送出</button>
+            <div class="form-row">
+                負責人：
+                <input type="text" name="Owner" id="Owner" />
+            </div>
 
-    </form>
-</div>
+            <button type="submit">送出 / 更新</button>
 
-<div class="card">
-    <h2>報告清單（點擊可編輯）</h2>
+        </form>
+    </div>
 
-    <table id="reportTable">
-        <tr>
-            <th>客戶</th>
-            <th>類型</th>
-            <th>設備種類</th>
-            <th>內容</th>
-            <th>負責人</th>
-            <th>日期</th>
-        </tr>
+    <!-- 🖥️ 表格 -->
+    <div class="card">
+        <table id="reportTable">
+            <tr>
+                <th>客戶</th>
+                <th>類型</th>
+                <th>設備</th>
+                <th>內容</th>
+                <th>負責人</th>
+                <th>日期</th>
+            </tr>
+
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var row = Model[i];
+
+                <tr onclick="fillForm(this, @(i + 2), '@(row.Count > 0 ? row[0] : "")', '@(row.Count > 1 ? row[1] : "")', '@(row.Count > 2 ? row[2] : "")', '@(row.Count > 3 ? row[3] : "")', '@(row.Count > 4 ? row[4] : "")')">
+
+                    <td>@(row.Count > 0 ? row[0] : "")</td>
+                    <td>@(row.Count > 1 ? row[1] : "")</td>
+                    <td>@(row.Count > 2 ? row[2] : "")</td>
+                    <td>@(row.Count > 3 ? row[3] : "")</td>
+                    <td>@(row.Count > 4 ? row[4] : "")</td>
+                    <td>@(row.Count > 5 ? row[5] : "")</td>
+
+                </tr>
+            }
+        </table>
+    </div>
+
+    <!-- 📱 手機卡片 -->
+    <div class="mobile-card">
 
         @for (int i = 0; i < Model.Count; i++)
         {
             var row = Model[i];
 
-            <tr onclick="fillForm(this, @(i + 2), '@(row.Count > 0 ? row[0] : "")', '@(row.Count > 1 ? row[1] : "")', '@(row.Count > 2 ? row[2] : "")', '@(row.Count > 3 ? row[3] : "")', '@(row.Count > 4 ? row[4] : "")')">
+            <div class="mobile-item"
+                 onclick="fillForm(this, @(i + 2), '@(row.Count > 0 ? row[0] : "")', '@(row.Count > 1 ? row[1] : "")', '@(row.Count > 2 ? row[2] : "")', '@(row.Count > 3 ? row[3] : "")', '@(row.Count > 4 ? row[4] : "")')">
 
-                <td>@(row.Count > 0 ? row[0] : "")</td>
-                <td>@(row.Count > 1 ? row[1] : "")</td>
-                <td>@(row.Count > 2 ? row[2] : "")</td>
-                <td>@(row.Count > 3 ? row[3] : "")</td>
-                <td>@(row.Count > 4 ? row[4] : "")</td>
-                <td>@(row.Count > 5 ? row[5] : "")</td>
+                <div><b>客戶：</b>@(row.Count > 0 ? row[0] : "")</div>
+                <div><b>類型：</b>@(row.Count > 1 ? row[1] : "")</div>
+                <div><b>設備：</b>@(row.Count > 2 ? row[2] : "")</div>
+                <div><b>內容：</b>@(row.Count > 3 ? row[3] : "")</div>
+                <div><b>負責人：</b>@(row.Count > 4 ? row[4] : "")</div>
+                <div><b>日期：</b>@(row.Count > 5 ? row[5] : "")</div>
 
-            </tr>
+            </div>
         }
+    </div>
 
-    </table>
 </div>
 
 <script>
     function fillForm(rowElement, index, customer, type, equipment, content, owner) {
 
-        // 清除選取
+        // 高亮
         let rows = document.querySelectorAll("#reportTable tr");
         rows.forEach(r => r.classList.remove("selected"));
 
-        // 高亮
-        rowElement.classList.add("selected");
+        if (rowElement.tagName === "TR") {
+            rowElement.classList.add("selected");
+        }
 
         // 填資料
         document.getElementById("rowIndex").value = index;
@@ -167,5 +233,8 @@
         document.getElementById("Equipment").value = equipment;
         document.getElementById("Content").value = content;
         document.getElementById("Owner").value = owner;
+
+        // 手機滑動
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }
 </script>
