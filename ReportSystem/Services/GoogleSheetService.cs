@@ -11,13 +11,29 @@ public class GoogleSheetService
 
     public GoogleSheetService()
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "Credentials", "google.json");
-
         GoogleCredential credential;
-        using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+
+        // 🔥 先讀 Render 環境變數
+        var json = Environment.GetEnvironmentVariable("GOOGLE_JSON");
+
+        if (!string.IsNullOrEmpty(json))
         {
-            credential = GoogleCredential.FromStream(stream)
-                .CreateScoped(SheetsService.Scope.Spreadsheets);
+            using (var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
+            {
+                credential = GoogleCredential.FromStream(stream)
+                    .CreateScoped(SheetsService.Scope.Spreadsheets);
+            }
+        }
+        else
+        {
+            // 🔹 本機 fallback
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Credentials", "google.json");
+
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream)
+                    .CreateScoped(SheetsService.Scope.Spreadsheets);
+            }
         }
 
         _service = new SheetsService(new BaseClientService.Initializer()
@@ -27,6 +43,7 @@ public class GoogleSheetService
         });
     }
 
+    // 🔹 讀取（A~F）
     public IList<IList<object>> GetAll()
     {
         var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:F");
@@ -34,8 +51,12 @@ public class GoogleSheetService
         return response.Values ?? new List<IList<object>>();
     }
 
+    // 🔹 新增（含日期）
     public void AddRow(List<object> row)
     {
+        // 自動加日期
+        row.Add(DateTime.Now.ToString("yyyy-MM-dd"));
+
         var body = new ValueRange
         {
             Values = new List<IList<object>> { row }
@@ -48,8 +69,12 @@ public class GoogleSheetService
         request.Execute();
     }
 
+    // 🔹 更新（含日期）
     public void UpdateRow(int rowIndex, List<object> row)
     {
+        // 更新日期
+        row.Add(DateTime.Now.ToString("yyyy-MM-dd"));
+
         var range = $"work!A{rowIndex}:F{rowIndex}";
 
         var body = new ValueRange
