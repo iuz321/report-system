@@ -2,20 +2,19 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
-using System.Text;
 
 public class GoogleSheetService
 {
     private readonly SheetsService _service;
+
     private readonly string _spreadsheetId = "1akc8lPUQ9_6BB1sxOpQbuzqKSDGWNSZJL-m5pnBvdeM";
 
     public GoogleSheetService()
     {
-        var json = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIAL_JSON");
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "Credentials", "google.json");
 
         GoogleCredential credential;
-
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+        using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
         {
             credential = GoogleCredential.FromStream(stream)
                 .CreateScoped(SheetsService.Scope.Spreadsheets);
@@ -37,7 +36,10 @@ public class GoogleSheetService
 
     public void AddRow(List<object> row)
     {
-        var body = new ValueRange { Values = new List<IList<object>> { row } };
+        var body = new ValueRange
+        {
+            Values = new List<IList<object>> { row }
+        };
 
         var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:F");
         request.ValueInputOption =
@@ -50,7 +52,10 @@ public class GoogleSheetService
     {
         var range = $"work!A{rowIndex}:F{rowIndex}";
 
-        var body = new ValueRange { Values = new List<IList<object>> { row } };
+        var body = new ValueRange
+        {
+            Values = new List<IList<object>> { row }
+        };
 
         var request = _service.Spreadsheets.Values.Update(body, _spreadsheetId, range);
         request.ValueInputOption =
