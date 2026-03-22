@@ -1,31 +1,93 @@
-﻿<table border="1" width="100%" id="reportTable">
-    <tr>
-        <th>客戶</th>
-        <th>類型</th>
-        <th>設備</th>
-        <th>內容</th>
-        <th>負責人</th>
-        <th>日期</th>
-    </tr>
+﻿@model IList<IList<object>>
 
-    @for (int i = 0; i < Model.Count; i++)
-    {
-        var row = Model[i];
+<div style="max-width:900px;margin:auto">
 
-        <tr class="data-row"
-            data-index="@(i + 2)"
-            data-customer="@(row.Count > 0 ? row[0] : "")"
-            data-type="@(row.Count > 1 ? row[1] : "")"
-            data-equipment="@(row.Count > 2 ? row[2] : "")"
-            data-content="@(row.Count > 3 ? row[3] : "")"
-            data-owner="@(row.Count > 4 ? row[4] : "")">
+    <h2 style="text-align:center;background:#1f2d3d;color:white;padding:10px;border-radius:6px;">
+        大量產部-工作報告系統
+    </h2>
 
-            <td>@(row.Count > 0 ? row[0] : "")</td>
-            <td>@(row.Count > 1 ? row[1] : "")</td>
-            <td>@(row.Count > 2 ? row[2] : "")</td>
-            <td>@(row.Count > 3 ? row[3] : "")</td>
-            <td>@(row.Count > 4 ? row[4] : "")</td>
-            <td>@(row.Count > 5 ? row[5] : "")</td>
+    <form method="post" action="/Report/Save" style="margin-top:20px;">
+        <input type="hidden" id="rowIndex" name="rowIndex" value="0" />
+
+        <div>客戶：</div>
+        <input id="Customer" name="Customer" style="width:100%;" />
+
+        <div>類型：</div>
+        <select id="Type" name="Type" style="width:100%;">
+            <option>打樣</option>
+            <option>DEMO</option>
+        </select>
+
+        <div>設備：</div>
+        <input id="Equipment" name="Equipment" style="width:100%;" />
+
+        <div>內容：</div>
+        <textarea id="Content" name="Content" style="width:100%;height:100px;"></textarea>
+
+        <div>負責人：</div>
+        <input id="Owner" name="Owner" style="width:100%;" />
+
+        <br />
+        <button type="submit" style="background:#007bff;color:white;padding:10px;border:none;">
+            送出 / 更新
+        </button>
+    </form>
+
+    <hr />
+
+    <table border="1" width="100%" id="reportTable">
+        <tr>
+            <th>客戶</th>
+            <th>類型</th>
+            <th>設備</th>
+            <th>內容</th>
+            <th>負責人</th>
+            <th>日期</th>
         </tr>
-    }
-</table>
+
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var row = Model[i];
+
+            var customer = row.Count > 0 ? row[0]?.ToString() : "";
+            var type = row.Count > 1 ? row[1]?.ToString() : "";
+            var equipment = row.Count > 2 ? row[2]?.ToString() : "";
+            var content = row.Count > 3 ? row[3]?.ToString() : "";
+            var owner = row.Count > 4 ? row[4]?.ToString() : "";
+            var date = row.Count > 5 ? row[5]?.ToString() : "";
+
+            <tr class="data-row"
+                data-index="@(i + 2)"
+                data-customer="@System.Net.WebUtility.HtmlEncode(customer)"
+                data-type="@System.Net.WebUtility.HtmlEncode(type)"
+                data-equipment="@System.Net.WebUtility.HtmlEncode(equipment)"
+                data-content="@System.Net.WebUtility.HtmlEncode(content)"
+                data-owner="@System.Net.WebUtility.HtmlEncode(owner)">
+
+                <td>@customer</td>
+                <td>@type</td>
+                <td>@equipment</td>
+                <td style="white-space: pre-wrap;">@content</td>
+                <td>@owner</td>
+                <td>@date</td>
+            </tr>
+        }
+    </table>
+
+</div>
+
+<script>
+    document.querySelectorAll(".data-row").forEach(row => {
+        row.addEventListener("click", function () {
+
+            document.getElementById("rowIndex").value = this.dataset.index;
+            document.getElementById("Customer").value = this.dataset.customer;
+            document.getElementById("Type").value = this.dataset.type;
+            document.getElementById("Equipment").value = this.dataset.equipment;
+            document.getElementById("Content").value = this.dataset.content;
+            document.getElementById("Owner").value = this.dataset.owner;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
