@@ -1,84 +1,31 @@
-﻿@model IList<IList<object>>
+﻿<table border="1" width="100%" id="reportTable">
+    <tr>
+        <th>客戶</th>
+        <th>類型</th>
+        <th>設備</th>
+        <th>內容</th>
+        <th>負責人</th>
+        <th>日期</th>
+    </tr>
 
-<div style="max-width:900px;margin:auto">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        var row = Model[i];
 
-    <h2 style="text-align:center;background:#1f2d3d;color:white;padding:10px;border-radius:6px;">
-        工作報告系統
-    </h2>
+        <tr class="data-row"
+            data-index="@(i + 2)"
+            data-customer="@(row.Count > 0 ? row[0] : "")"
+            data-type="@(row.Count > 1 ? row[1] : "")"
+            data-equipment="@(row.Count > 2 ? row[2] : "")"
+            data-content="@(row.Count > 3 ? row[3] : "")"
+            data-owner="@(row.Count > 4 ? row[4] : "")">
 
-    <form method="post" action="/Report/Save" style="margin-top:20px;">
-        <input type="hidden" id="rowIndex" name="rowIndex" value="0" />
-
-        <div>客戶：</div>
-        <input id="Customer" name="Customer" style="width:100%;" />
-
-        <div>類型：</div>
-        <select id="Type" name="Type" style="width:100%;">
-            <option>打樣</option>
-            <option>DEMO</option>
-        </select>
-
-        <div>設備：</div>
-        <input id="Equipment" name="Equipment" style="width:100%;" />
-
-        <div>內容：</div>
-        <textarea id="Content" name="Content" style="width:100%;height:100px;"></textarea>
-
-        <div>負責人：</div>
-        <input id="Owner" name="Owner" style="width:100%;" />
-
-        <br />
-        <button type="submit" style="background:#007bff;color:white;padding:10px;border:none;">
-            送出 / 更新
-        </button>
-    </form>
-
-    <hr />
-
-    <table border="1" width="100%" id="reportTable">
-        <tr>
-            <th>客戶</th>
-            <th>類型</th>
-            <th>設備</th>
-            <th>內容</th>
-            <th>負責人</th>
-            <th>日期</th>
+            <td>@(row.Count > 0 ? row[0] : "")</td>
+            <td>@(row.Count > 1 ? row[1] : "")</td>
+            <td>@(row.Count > 2 ? row[2] : "")</td>
+            <td>@(row.Count > 3 ? row[3] : "")</td>
+            <td>@(row.Count > 4 ? row[4] : "")</td>
+            <td>@(row.Count > 5 ? row[5] : "")</td>
         </tr>
-
-        @for (int i = 0; i < Model.Count; i++)
-        {
-            var row = Model[i];
-
-            <tr onclick="fillForm(this,
-                                      @(i + 2),
-                                      '@(row.Count > 0 ? row[0] : "")',
-                                      '@(row.Count > 1 ? row[1] : "")',
-                                      '@(row.Count > 2 ? row[2] : "")',
-                                      '@(row.Count > 3 ? row[3] : "")',
-                                      '@(row.Count > 4 ? row[4] : "")')">
-
-                <td>@(row.Count > 0 ? row[0] : "")</td>
-                <td>@(row.Count > 1 ? row[1] : "")</td>
-                <td>@(row.Count > 2 ? row[2] : "")</td>
-                <td>@(row.Count > 3 ? row[3] : "")</td>
-                <td>@(row.Count > 4 ? row[4] : "")</td>
-                <td>@(row.Count > 5 ? row[5] : "")</td>
-            </tr>
-        }
-    </table>
-
-</div>
-
-<script>
-    function fillForm(row, index, customer, type, equipment, content, owner) {
-
-        document.getElementById("rowIndex").value = index;
-        document.getElementById("Customer").value = customer;
-        document.getElementById("Type").value = type;
-        document.getElementById("Equipment").value = equipment;
-        document.getElementById("Content").value = content;
-        document.getElementById("Owner").value = owner;
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-</script>
+</table>
