@@ -1,85 +1,40 @@
 ﻿@model IList<IList<object>>
 
-<style>
-    body {
-        font-family: "Segoe UI";
-        background: #f4f6f9;
-        margin: 0;
-    }
+<div style="max-width:900px;margin:auto">
 
-    .header {
-        background: #1f2d3d;
-        color: white;
-        padding: 15px;
-        text-align: center;
-    }
+    <h2 style="text-align:center;background:#1f2d3d;color:white;padding:10px;border-radius:6px;">
+        工作報告系統
+    </h2>
 
-    .container {
-        padding: 15px;
-    }
+    <form method="post" action="/Report/Save" style="margin-top:20px;">
+        <input type="hidden" id="rowIndex" name="rowIndex" value="0" />
 
-    .card {
-        background: white;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+        <div>客戶：</div>
+        <input id="Customer" name="Customer" style="width:100%;" />
 
-    button {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 10px;
-        border-radius: 5px;
-    }
+        <div>類型：</div>
+        <select id="Type" name="Type" style="width:100%;">
+            <option>打樣</option>
+            <option>DEMO</option>
+        </select>
 
-    input, select, textarea {
-        width: 100%;
-        margin-bottom: 8px;
-        padding: 6px;
-    }
+        <div>設備：</div>
+        <input id="Equipment" name="Equipment" style="width:100%;" />
 
-    /* 📱 手機 */
-    @@media (max-width:768px) {
-        table {
-            display: none;
-        }
-    }
+        <div>內容：</div>
+        <textarea id="Content" name="Content" style="width:100%;height:100px;"></textarea>
 
-    /* 🖥️ 電腦 */
-    @@media (min-width:769px) {
-        .mobile {
-            display: none;
-        }
-    }
-</style>
+        <div>負責人：</div>
+        <input id="Owner" name="Owner" style="width:100%;" />
 
-<div class="header">ReportSystem</div>
+        <br />
+        <button type="submit" style="background:#007bff;color:white;padding:10px;border:none;">
+            送出 / 更新
+        </button>
+    </form>
 
-<div class="container">
+    <hr />
 
-    <!-- 表單 -->
-    <div class="card">
-        <form method="post" action="/Report/Add">
-            <input type="hidden" id="rowIndex" name="rowIndex" value="0" />
-
-            客戶:<input id="Customer" name="Customer" />
-            類型:
-            <select id="Type" name="Type">
-                <option>打樣</option>
-                <option>DEMO</option>
-            </select>
-
-            設備:<input id="Equipment" name="Equipment" />
-            內容:<textarea id="Content" name="Content"></textarea>
-            負責人:<input id="Owner" name="Owner" />
-
-            <button type="submit">送出 / 更新</button>
-        </form>
-    </div>
-
-    <!-- 🖥️ 表格 -->
     <table border="1" width="100%" id="reportTable">
         <tr>
             <th>客戶</th>
@@ -94,13 +49,13 @@
         {
             var row = Model[i];
 
-            <tr class="data-row"
-                data-index="@(i + 2)"
-                data-customer='@System.Text.Json.JsonSerializer.Serialize(row.Count > 0 ? row[0] : "")'
-                data-type='@System.Text.Json.JsonSerializer.Serialize(row.Count > 1 ? row[1] : "")'
-                data-equipment='@System.Text.Json.JsonSerializer.Serialize(row.Count > 2 ? row[2] : "")'
-                data-content='@System.Text.Json.JsonSerializer.Serialize(row.Count > 3 ? row[3] : "")'
-                data-owner='@System.Text.Json.JsonSerializer.Serialize(row.Count > 4 ? row[4] : "")'>
+            <tr onclick="fillForm(this,
+                                      @(i + 2),
+                                      '@(row.Count > 0 ? row[0] : "")',
+                                      '@(row.Count > 1 ? row[1] : "")',
+                                      '@(row.Count > 2 ? row[2] : "")',
+                                      '@(row.Count > 3 ? row[3] : "")',
+                                      '@(row.Count > 4 ? row[4] : "")')">
 
                 <td>@(row.Count > 0 ? row[0] : "")</td>
                 <td>@(row.Count > 1 ? row[1] : "")</td>
@@ -108,53 +63,22 @@
                 <td>@(row.Count > 3 ? row[3] : "")</td>
                 <td>@(row.Count > 4 ? row[4] : "")</td>
                 <td>@(row.Count > 5 ? row[5] : "")</td>
-
             </tr>
         }
     </table>
 
-    <!-- 📱 手機 -->
-    <div class="mobile">
-
-        @for (int i = 0; i < Model.Count; i++)
-        {
-            var row = Model[i];
-
-            <div class="card data-row"
-                 data-index="@(i + 2)"
-                 data-customer='@System.Text.Json.JsonSerializer.Serialize(row.Count > 0 ? row[0] : "")'
-                 data-type='@System.Text.Json.JsonSerializer.Serialize(row.Count > 1 ? row[1] : "")'
-                 data-equipment='@System.Text.Json.JsonSerializer.Serialize(row.Count > 2 ? row[2] : "")'
-                 data-content='@System.Text.Json.JsonSerializer.Serialize(row.Count > 3 ? row[3] : "")'
-                 data-owner='@System.Text.Json.JsonSerializer.Serialize(row.Count > 4 ? row[4] : "")'>
-
-                客戶:@(row.Count > 0 ? row[0] : "")<br>
-                類型:@(row.Count > 1 ? row[1] : "")<br>
-                設備:@(row.Count > 2 ? row[2] : "")<br>
-                內容:@(row.Count > 3 ? row[3] : "")<br>
-                負責人:@(row.Count > 4 ? row[4] : "")<br>
-                日期:@(row.Count > 5 ? row[5] : "")
-
-            </div>
-        }
-    </div>
-
 </div>
 
 <script>
-    // ⭐ 最穩：事件代理 + JSON parse
-    document.addEventListener("click", function(e){
+    function fillForm(row, index, customer, type, equipment, content, owner) {
 
-        const row = e.target.closest(".data-row");
-        if(!row) return;
+        document.getElementById("rowIndex").value = index;
+        document.getElementById("Customer").value = customer;
+        document.getElementById("Type").value = type;
+        document.getElementById("Equipment").value = equipment;
+        document.getElementById("Content").value = content;
+        document.getElementById("Owner").value = owner;
 
-        document.getElementById("rowIndex").value = row.dataset.index;
-        document.getElementById("Customer").value = JSON.parse(row.dataset.customer);
-        document.getElementById("Type").value = JSON.parse(row.dataset.type);
-        document.getElementById("Equipment").value = JSON.parse(row.dataset.equipment);
-        document.getElementById("Content").value = JSON.parse(row.dataset.content);
-        document.getElementById("Owner").value = JSON.parse(row.dataset.owner);
-
-        window.scrollTo({top:0,behavior:"smooth"});
-    });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 </script>

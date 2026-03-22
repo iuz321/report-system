@@ -2,49 +2,60 @@
 
 public class ReportController : Controller
 {
-    private readonly GoogleSheetService _sheetService;
+    private readonly GoogleSheetService _sheet;
 
     public ReportController()
     {
-        _sheetService = new GoogleSheetService();
+        _sheet = new GoogleSheetService();
     }
 
     public IActionResult Index()
     {
-        var data = _sheetService.GetAll();
+        var data = _sheet.GetAll();
         return View(data);
     }
 
     [HttpPost]
-    public IActionResult Save(string Customer, string Type, string Equipment, string Content, string Owner, int RowIndex)
+    public IActionResult Save(
+        int rowIndex,
+        string Customer,
+        string Type,
+        string Equipment,
+        string Content,
+        string Owner)
     {
-        // 🔥 修正跨裝置換行問題（重點）
+        // 🔥 防爆處理（關鍵）
         Content = Content?
-            .Replace("\r\n", "\n")
-            .Replace("\r", "\n")
+            .Replace("\r\n", " ")
+            .Replace("\r", " ")
+            .Replace("\n", " ")
+            .Replace("\t", " ")
             .Trim();
 
-        Customer = Customer?.Trim();
-        Type = Type?.Trim();
-        Equipment = Equipment?.Trim();
-        Owner = Owner?.Trim();
+        if (!string.IsNullOrEmpty(Content) && Content.Length > 500)
+        {
+            Content = Content.Substring(0, 500);
+        }
+
+        var today = DateTime.Now.ToString("yyyy-MM-dd");
 
         var row = new List<object>
         {
-            Customer,
-            Type,
-            Equipment,
-            Content,
-            Owner
+            Customer ?? "",
+            Type ?? "",
+            Equipment ?? "",
+            Content ?? "",
+            Owner ?? "",
+            today
         };
 
-        if (RowIndex == 0)
+        if (rowIndex == 0)
         {
-            _sheetService.AddRow(row);
+            _sheet.AddRow(row);
         }
         else
         {
-            _sheetService.UpdateRow(RowIndex, row);
+            _sheet.UpdateRow(rowIndex, row);
         }
 
         return RedirectToAction("Index");
