@@ -6,7 +6,7 @@ using Google.Apis.Sheets.v4.Data;
 public class GoogleSheetService
 {
     private readonly SheetsService _service;
-    private readonly string _spreadsheetId = "你的SheetID";
+    private readonly string _spreadsheetId = "1akc8lPUQ9_6BB1sxOpQbuzqKSDGWNSZJL-m5pnBvdeM";
 
     public GoogleSheetService()
     {
