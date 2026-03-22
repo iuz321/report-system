@@ -13,27 +13,24 @@ public class GoogleSheetService
     {
         GoogleCredential credential;
 
-        // 🔥 先讀 Render 環境變數
         var json = Environment.GetEnvironmentVariable("GOOGLE_JSON");
 
-        if (!string.IsNullOrEmpty(json))
+        // 🔥 ===== 驗證開始（重點）=====
+        if (string.IsNullOrEmpty(json))
         {
-            using (var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
-            {
-                credential = GoogleCredential.FromStream(stream)
-                    .CreateScoped(SheetsService.Scope.Spreadsheets);
-            }
+            throw new Exception("❌ GOOGLE_JSON 沒設定");
         }
-        else
-        {
-            // 🔹 本機 fallback
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "Credentials", "google.json");
 
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                credential = GoogleCredential.FromStream(stream)
-                    .CreateScoped(SheetsService.Scope.Spreadsheets);
-            }
+        if (!json.Contains("private_key"))
+        {
+            throw new Exception("❌ GOOGLE_JSON 格式錯誤（缺少 private_key）");
+        }
+        // 🔥 ===== 驗證結束 =====
+
+        using (var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
+        {
+            credential = GoogleCredential.FromStream(stream)
+                .CreateScoped(SheetsService.Scope.Spreadsheets);
         }
 
         _service = new SheetsService(new BaseClientService.Initializer()
@@ -43,49 +40,68 @@ public class GoogleSheetService
         });
     }
 
-    // 🔹 讀取（A~F）
+    // 🔹 測試讀取
     public IList<IList<object>> GetAll()
     {
-        var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:F");
-        var response = request.Execute();
-        return response.Values ?? new List<IList<object>>();
+        try
+        {
+            var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:F");
+            var response = request.Execute();
+            return response.Values ?? new List<IList<object>>();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("❌ 讀取 Google Sheet 失敗：" + ex.Message);
+        }
     }
 
-    // 🔹 新增（含日期）
+    // 🔹 新增
     public void AddRow(List<object> row)
     {
-        // 自動加日期
-        row.Add(DateTime.Now.ToString("yyyy-MM-dd"));
-
-        var body = new ValueRange
+        try
         {
-            Values = new List<IList<object>> { row }
-        };
+            row.Add(DateTime.Now.ToString("yyyy-MM-dd"));
 
-        var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:F");
-        request.ValueInputOption =
-            SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+            var body = new ValueRange
+            {
+                Values = new List<IList<object>> { row }
+            };
 
-        request.Execute();
+            var request = _service.Spreadsheets.Values.Append(body, _spreadsheetId, "work!A:F");
+            request.ValueInputOption =
+                SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+
+            request.Execute();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("❌ 新增失敗：" + ex.Message);
+        }
     }
 
-    // 🔹 更新（含日期）
+    // 🔹 更新
     public void UpdateRow(int rowIndex, List<object> row)
     {
-        // 更新日期
-        row.Add(DateTime.Now.ToString("yyyy-MM-dd"));
-
-        var range = $"work!A{rowIndex}:F{rowIndex}";
-
-        var body = new ValueRange
+        try
         {
-            Values = new List<IList<object>> { row }
-        };
+            row.Add(DateTime.Now.ToString("yyyy-MM-dd"));
 
-        var request = _service.Spreadsheets.Values.Update(body, _spreadsheetId, range);
-        request.ValueInputOption =
-            SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+            var range = $"work!A{rowIndex}:F{rowIndex}";
 
-        request.Execute();
+            var body = new ValueRange
+            {
+                Values = new List<IList<object>> { row }
+            };
+
+            var request = _service.Spreadsheets.Values.Update(body, _spreadsheetId, range);
+            request.ValueInputOption =
+                SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+
+            request.Execute();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("❌ 更新失敗：" + ex.Message);
+        }
     }
 }
