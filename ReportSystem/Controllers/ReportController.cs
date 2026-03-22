@@ -2,47 +2,49 @@
 
 public class ReportController : Controller
 {
-    private readonly GoogleSheetService _sheet;
+    private readonly GoogleSheetService _sheetService;
 
     public ReportController()
     {
-        _sheet = new GoogleSheetService();
+        _sheetService = new GoogleSheetService();
     }
 
     public IActionResult Index()
     {
-        var data = _sheet.GetAll();
+        var data = _sheetService.GetAll();
         return View(data);
     }
 
     [HttpPost]
-    public IActionResult Add(string Customer, string Type, string Equipment, string Content, string Owner, int? rowIndex)
+    public IActionResult Save(string Customer, string Type, string Equipment, string Content, string Owner, int RowIndex)
     {
-        var today = DateTime.Now.ToString("yyyy-MM-dd"); // ⭐ 只日期
+        // 🔥 修正跨裝置換行問題（重點）
+        Content = Content?
+            .Replace("\r\n", "\n")
+            .Replace("\r", "\n")
+            .Trim();
 
-        if (rowIndex.HasValue)
+        Customer = Customer?.Trim();
+        Type = Type?.Trim();
+        Equipment = Equipment?.Trim();
+        Owner = Owner?.Trim();
+
+        var row = new List<object>
         {
-            _sheet.UpdateRow(rowIndex.Value, new List<object>
-            {
-                Customer,
-                Type,
-                Equipment,
-                Content,
-                Owner,
-                today
-            });
+            Customer,
+            Type,
+            Equipment,
+            Content,
+            Owner
+        };
+
+        if (RowIndex == 0)
+        {
+            _sheetService.AddRow(row);
         }
         else
         {
-            _sheet.AddRow(new List<object>
-            {
-                Customer,
-                Type,
-                Equipment,
-                Content,
-                Owner,
-                today
-            });
+            _sheetService.UpdateRow(RowIndex, row);
         }
 
         return RedirectToAction("Index");
