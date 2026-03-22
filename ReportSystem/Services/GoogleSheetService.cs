@@ -13,7 +13,7 @@ public class GoogleSheetService
     {
         GoogleCredential credential;
 
-        var json = Environment.GetEnvironmentVariable("GOOGLE_JSON");
+        var json = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIAL_JSON");
 
         // 🔥 ===== 驗證開始（重點）=====
         if (string.IsNullOrEmpty(json))
