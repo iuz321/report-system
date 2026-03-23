@@ -2,23 +2,36 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using System.Text;
 
 public class GoogleSheetService
 {
     private readonly SheetsService _service;
+
+    // 👉 你的 Sheet ID
     private readonly string _spreadsheetId = "1akc8lPUQ9_6BB1sxOpQbuzqKSDGWNSZJL-m5pnBvdeM";
 
     public GoogleSheetService()
     {
+        // 🔥 先抓 Render 環境變數
         var json = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIAL_JSON");
 
+        // 🔥 如果沒有 → 用本地 json（VS用）
         if (string.IsNullOrEmpty(json))
         {
-            throw new Exception("❌ GOOGLE_CREDENTIAL_JSON 沒設定");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Credentials", "google.json");
+
+            if (!File.Exists(path))
+            {
+                throw new Exception("❌ 找不到 Credentials/google.json");
+            }
+
+            json = File.ReadAllText(path);
         }
 
         GoogleCredential credential;
-        using (var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
+
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
         {
             credential = GoogleCredential.FromStream(stream)
                 .CreateScoped(SheetsService.Scope.Spreadsheets);
@@ -31,6 +44,7 @@ public class GoogleSheetService
         });
     }
 
+    // 🔹 讀取
     public IList<IList<object>> GetAll()
     {
         var request = _service.Spreadsheets.Values.Get(_spreadsheetId, "work!A2:F");
@@ -38,6 +52,7 @@ public class GoogleSheetService
         return response.Values ?? new List<IList<object>>();
     }
 
+    // 🔹 新增
     public void AddRow(List<object> row)
     {
         var body = new ValueRange
@@ -52,6 +67,7 @@ public class GoogleSheetService
         request.Execute();
     }
 
+    // 🔹 更新
     public void UpdateRow(int rowIndex, List<object> row)
     {
         var range = $"work!A{rowIndex}:F{rowIndex}";
