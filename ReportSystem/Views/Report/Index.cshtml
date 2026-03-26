@@ -3,8 +3,16 @@
 <div style="max-width:900px;margin:auto">
 
     <h2 style="text-align:center;background:#1f2d3d;color:white;padding:10px;border-radius:6px;">
-        大量生產部工作報告系統
+        工作報告系統
     </h2>
+
+    <!-- 🔥 錯誤提示 -->
+    @if (TempData["Error"] != null)
+    {
+        <div style="color:red; margin-bottom:10px; font-weight:bold;">
+            @TempData["Error"]
+        </div>
+    }
 
     <!-- 表單 -->
     <form method="post" action="/Report/Save" style="margin-top:20px;">
@@ -29,14 +37,14 @@
         <input id="Owner" name="Owner" style="width:100%;" />
 
         <br />
-        <button type="submit" style="background:#007bff;color:white;padding:10px;border:none;">
+        <button type="submit" style="background:#007bff;color:white;padding:10px;border:none;border-radius:4px;">
             送出 / 更新
         </button>
     </form>
 
     <hr />
 
-    <!-- 🔥 表格樣式（你要的美化） -->
+    <!-- 🔥 表格樣式 -->
     <style>
         #reportTable {
             border-collapse: collapse;
@@ -120,7 +128,7 @@
 
 </div>
 
-<!-- 點擊編輯 -->
+<!-- 🔥 點擊帶入編輯 -->
 <script>
     document.querySelectorAll(".data-row").forEach(row => {
         row.addEventListener("click", function () {

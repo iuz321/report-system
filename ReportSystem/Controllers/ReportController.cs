@@ -9,52 +9,50 @@ public class ReportController : Controller
         _sheet = new GoogleSheetService();
     }
 
+    // 🔹 首頁
     public IActionResult Index()
     {
         var data = _sheet.GetAll();
         return View(data);
     }
 
+    // 🔹 新增 / 更新
     [HttpPost]
-    public IActionResult Save(
-        int rowIndex,
-        string Customer,
-        string Type,
-        string Equipment,
-        string Content,
-        string Owner)
+    public IActionResult Save(string Customer, string Type, string Equipment, string Content, string Owner, int rowIndex)
     {
-        // 🔥 防爆處理（關鍵）
-        Content = Content?
-            .Replace("\r\n", " ")
-            .Replace("\r", " ")
-            .Replace("\n", " ")
-            .Replace("\t", " ")
-            .Trim();
-
-        if (!string.IsNullOrEmpty(Content) && Content.Length > 500)
-        {
-            Content = Content.Substring(0, 500);
-        }
-
         var today = DateTime.Now.ToString("yyyy-MM-dd");
 
         var row = new List<object>
         {
-            Customer ?? "",
-            Type ?? "",
-            Equipment ?? "",
-            Content ?? "",
-            Owner ?? "",
+            Customer,
+            Type,
+            Equipment,
+            Content,
+            Owner,
             today
         };
 
+        var all = _sheet.GetAll();
+
+        // 🔥 新增時檢查是否重複
         if (rowIndex == 0)
         {
+            foreach (var r in all)
+            {
+                var existCustomer = r.Count > 0 ? r[0]?.ToString() : "";
+
+                if (existCustomer == Customer)
+                {
+                    TempData["Error"] = "❌ 客戶已存在，不能新增";
+                    return RedirectToAction("Index");
+                }
+            }
+
             _sheet.AddRow(row);
         }
         else
         {
+            // 🔹 編輯允許
             _sheet.UpdateRow(rowIndex, row);
         }
 
