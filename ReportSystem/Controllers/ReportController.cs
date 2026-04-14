@@ -9,14 +9,12 @@ public class ReportController : Controller
         _sheet = new GoogleSheetService();
     }
 
-    // 🔹 首頁
     public IActionResult Index()
     {
         var data = _sheet.GetAll();
         return View(data);
     }
 
-    // 🔹 新增 / 更新
     [HttpPost]
     public IActionResult Save(string Customer, string Type, string Equipment, string Content, string Owner, int rowIndex)
     {
@@ -32,27 +30,13 @@ public class ReportController : Controller
             today
         };
 
-        var all = _sheet.GetAll();
-
-        // 🔥 新增時檢查是否重複
         if (rowIndex == 0)
         {
-            foreach (var r in all)
-            {
-                var existCustomer = r.Count > 0 ? r[0]?.ToString() : "";
-
-                if (existCustomer == Customer)
-                {
-                    TempData["Error"] = "❌ 客戶已存在，不能新增";
-                    return RedirectToAction("Index");
-                }
-            }
-
+            // 🔥 直接新增（不檢查重複）
             _sheet.AddRow(row);
         }
         else
         {
-            // 🔹 編輯允許
             _sheet.UpdateRow(rowIndex, row);
         }
 
