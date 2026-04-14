@@ -1,18 +1,24 @@
 ﻿@model IList<IList<object>>
 
+@{
+    // 🔥 排序（最新日期在上）
+    var sorted = Model
+        .Select(r => new
+        {
+            Row = r,
+            Date = r.Count > 5 && DateTime.TryParse(r[5]?.ToString(), out var d)
+                    ? d
+                    : DateTime.MinValue
+        })
+        .OrderByDescending(x => x.Date)
+        .ToList();
+}
+
 <div style="max-width:900px;margin:auto">
 
     <h2 style="text-align:center;background:#1f2d3d;color:white;padding:10px;border-radius:6px;">
         工作報告系統
     </h2>
-
-    <!-- 🔥 錯誤提示 -->
-    @if (TempData["Error"] != null)
-    {
-        <div style="color:red; margin-bottom:10px; font-weight:bold;">
-            @TempData["Error"]
-        </div>
-    }
 
     <!-- 表單 -->
     <form method="post" action="/Report/Save" style="margin-top:20px;">
@@ -44,12 +50,11 @@
 
     <hr />
 
-    <!-- 🔥 表格樣式 -->
+    <!-- 表格樣式 -->
     <style>
         #reportTable {
             border-collapse: collapse;
             width: 100%;
-            margin-top: 10px;
             font-size: 14px;
         }
 
@@ -97,9 +102,9 @@
             <th>日期</th>
         </tr>
 
-        @for (int i = 0; i < Model.Count; i++)
+        @foreach (var item in sorted)
         {
-            var row = Model[i];
+            var row = item.Row;
 
             var customer = row.Count > 0 ? row[0]?.ToString() : "";
             var type = row.Count > 1 ? row[1]?.ToString() : "";
@@ -108,13 +113,15 @@
             var owner = row.Count > 4 ? row[4]?.ToString() : "";
             var date = row.Count > 5 ? row[5]?.ToString() : "";
 
+            var realIndex = Model.IndexOf(row) + 2; // ⭐關鍵（對應 Google Sheet）
+
             <tr class="data-row"
-                data-index="@(i + 2)"
-                data-customer="@System.Net.WebUtility.HtmlEncode(customer)"
-                data-type="@System.Net.WebUtility.HtmlEncode(type)"
-                data-equipment="@System.Net.WebUtility.HtmlEncode(equipment)"
-                data-content="@System.Net.WebUtility.HtmlEncode(content)"
-                data-owner="@System.Net.WebUtility.HtmlEncode(owner)">
+                data-index="@realIndex"
+                data-customer="@customer"
+                data-type="@type"
+                data-equipment="@equipment"
+                data-content="@content"
+                data-owner="@owner">
 
                 <td>@customer</td>
                 <td>@type</td>
@@ -128,12 +135,13 @@
 
 </div>
 
-<!-- 🔥 點擊帶入編輯 -->
+<!-- 點擊帶入編輯 -->
 <script>
     document.querySelectorAll(".data-row").forEach(row => {
         row.addEventListener("click", function () {
 
             document.getElementById("rowIndex").value = this.dataset.index;
+
             document.getElementById("Customer").value = this.dataset.customer;
             document.getElementById("Type").value = this.dataset.type;
             document.getElementById("Equipment").value = this.dataset.equipment;
